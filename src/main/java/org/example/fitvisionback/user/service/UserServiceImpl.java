@@ -9,7 +9,6 @@ import org.example.fitvisionback.user.entity.User;
 import org.example.fitvisionback.user.mapper.UserMapper;
 import org.example.fitvisionback.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +39,7 @@ public class UserServiceImpl implements UserService {
         User user = this.userMapper.toEntity(createUserDto);
         user.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         this.userRepository.save(user);
+
     }
 
     @Override
