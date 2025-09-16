@@ -54,6 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private void updateOrderStatus(Order order, String status) {
         log.info("Updating order status to: {}", status);
+        order.setProcessed(true);
         switch (status) {
             case "approved":
                 order.setStatus(OrderStatusEnum.APPROVED);
