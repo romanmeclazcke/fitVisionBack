@@ -13,10 +13,8 @@ import com.mercadopago.resources.preference.Preference;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitvisionback.credits.service.CreditsService;
-import org.example.fitvisionback.exceptions.PaymentWasProccesedException;
-import org.example.fitvisionback.order.entity.Order;
 import org.example.fitvisionback.order.service.OrderService;
-import org.example.fitvisionback.order.utils.OrderStatusEnum;
+import org.example.fitvisionback.payment.service.PaymentService;
 import org.example.fitvisionback.plan.entity.Plan;
 import org.example.fitvisionback.plan.service.PlanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,7 @@ public class MercadoPagoServiceImpl implements PaymentsService {
     private String mpAccessToken;
     private OrderService orderService;
     private CreditsService creditsService;
+    private PaymentService paymentService;
 
 
     @PostConstruct
@@ -46,10 +45,11 @@ public class MercadoPagoServiceImpl implements PaymentsService {
     }
 
     @Autowired
-    public MercadoPagoServiceImpl(PlanService planService,OrderService orderService,CreditsService creditsService) {
+    public MercadoPagoServiceImpl(PlanService planService,OrderService orderService,CreditsService creditsService, PaymentService paymentService) {
         this.planService = planService;
         this.orderService = orderService;
         this.creditsService = creditsService;
+        this.paymentService = paymentService;
     }
 
     @Override
@@ -90,47 +90,18 @@ public class MercadoPagoServiceImpl implements PaymentsService {
             String type = (String) payload.get("type");
             if (!"payment".equals(type)) return;
 
-            // Extraer paymentId del payload
             Map<String, Object> data = (Map<String, Object>) payload.get("data");
             String paymentId = String.valueOf(data.get("id"));
 
-            // Consultar a Mercado Pago para obtener detalles del pago
             PaymentClient paymentClient = new PaymentClient();
             Payment payment = paymentClient.get(Long.valueOf(paymentId));
 
-            String preferenceId = payment.getOrder().getId().toString();
-            String status = payment.getStatus(); // approved, rejected, pending...
-
-            // Buscar la orden en tu DB por el preferenceId
-            Order order = orderService.findByMercadoPagoPreferenceId(preferenceId);
-
-            if (order.isProcessed()){
-                throw new PaymentWasProccesedException("El pago ya fue procesado anteriormente");
-            }
-
-            // Actualizar estado de la orden
-           this.updateOrderStatus(order,status);
+            this.paymentService.handlePayment(payment);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error procesando webhook de MercadoPago", e);
         }
     }
 
-    private void updateOrderStatus(Order order, String status) {
-        log.info("Updating order status to: {}", status);
-        switch (status) {
-            case "approved":
-                order.setStatus(OrderStatusEnum.APPROVED);
-                this.creditsService.addCreditsToUser(order.getUser(), order.getPlan());
-                break;
-            case "rejected":
-                order.setStatus(OrderStatusEnum.REJECTED);
-                break;
-            case "pending":
-                order.setStatus(OrderStatusEnum.PENDING);
-                break;
-        }
-        this.orderService.save(order);
-    }
 
 
 }
