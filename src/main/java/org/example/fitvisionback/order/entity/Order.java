@@ -53,7 +53,7 @@ public class Order {
     @Column(nullable = false)
     private OrderStatusEnum status;
 
-    @Column(nullable = false)
+    @Column()
     private String mercadoPagoPreferenceId;
 
     @Column(nullable = false)

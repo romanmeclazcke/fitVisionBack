@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void createOrder(UUID planId, String preferenceId) {
+    public Order createOrder(UUID planId, String preferenceId) {
         User user = getUserConected.getUserConected();
         Plan plan = this.planRepository.findById(planId).orElseThrow(()-> new EntityNotFoundException("Plan not found"));
 
@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
                 .mercadoPagoPreferenceId(preferenceId)
                 .build();
 
-        this.orderRepository.save(order);
+        return this.orderRepository.save(order);
     }
 
     @Override
@@ -53,5 +53,17 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void save(Order order) {
         this.orderRepository.save(order);
+    }
+
+    @Override
+    public void updatePreferenceId(UUID id, String idPreference) {
+        Order order = this.orderRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Order not found"));
+        order.setMercadoPagoPreferenceId(idPreference);
+        this.orderRepository.save(order);
+    }
+
+    @Override
+    public Order getById(String externalReference) {
+        return this.orderRepository.findById(UUID.fromString(externalReference)).orElseThrow(()-> new EntityNotFoundException("Order not found"));
     }
 }

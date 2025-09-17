@@ -43,4 +43,9 @@ public class CreditsServiceImpl implements CreditsService{
         this.creditsRepository.save(creditsOffUser);
 
     }
+
+    @Override
+    public void save(Credits credits) {
+        this.creditsRepository.save(credits);
+    }
 }

@@ -1,6 +1,7 @@
 package org.example.fitvisionback.payment.service;
 
 
+import com.mercadopago.resources.payment.Payment;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitvisionback.credits.service.CreditsService;
 import org.example.fitvisionback.exceptions.PaymentWasProccesedException;
@@ -28,21 +29,26 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public void handlePayment(com.mercadopago.resources.payment.Payment payment) {
-        String preferenceId = payment.getOrder().getId().toString();
+    public void handlePayment(Payment payment,String externalReference) {
         String status = payment.getStatus();
 
-        Order order = orderService.findByMercadoPagoPreferenceId(preferenceId);
+        Order order = orderService.getById(externalReference);
 
         if (order.isProcessed()) {
             throw new PaymentWasProccesedException("El pago ya fue procesado anteriormente");
         }
+
+        String paymentType = payment.getPaymentTypeId();      // Tipo general: credit_card, pix, etc.
+        String paymentMethod = payment.getPaymentMethodId();
 
         // Creo registro para auditorias de pagos
         PaymentHistory paymentEntity = PaymentHistory.builder()
                 .mpPaymentId(payment.getId().toString())
                 .status(status)
                 .amount(payment.getTransactionAmount())
+                .paymentDate(payment.getDateApproved().toLocalDateTime())
+                .paymentMethod(paymentMethod)
+                .paymentType(paymentType)
                 .order(order)
                 .build();
 
