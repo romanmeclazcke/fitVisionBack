@@ -64,4 +64,8 @@ public class UserServiceImpl implements UserService {
 
         return this.userMapper.toDto(user);
     }
+
+    public int sum(int a, int b) {
+        return a + b;
+    }
 }
