@@ -13,6 +13,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - PROJECT_ID=${PROJECT_ID}
+      - MERCADO_PAGO_ACCESS_TOKEN=${MERCADO_PAGO_ACCESS_TOKEN}
+      - MERCADO_PAGO_PUBLIC_KEY=${MERCADO_PAGO_PUBLIC_KEY}
     volumes:
       - ./fitvision-key.json:/app/fitvision-key.json
     depends_on:
