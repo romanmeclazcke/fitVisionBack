@@ -14,11 +14,12 @@ public class CorsConfig {
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*") // 🔓 Permitir todos los orígenes
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
-            }
+                    registry.addMapping("/**")
+                            .allowedOrigins("https://v0-image-fusion-app-five.vercel.app")
+                            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                            .allowedHeaders("*")
+                            .allowCredentials(true);
+                }
         };
     }
 }
