@@ -28,7 +28,7 @@ public class AllowedOriginFilter implements Filter {
 
         String origin = req.getHeader("Origin");
 
-        if (origin != null && !origin.equals(FRONTED_URL)) {
+        if (origin != null && !origin.equals(FRONTED_URL) && !origin.equals("http://localhost:3000")) {
             res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden: Invalid origin");
             return;
         }

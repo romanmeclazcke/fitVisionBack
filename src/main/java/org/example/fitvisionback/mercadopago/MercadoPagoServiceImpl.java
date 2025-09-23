@@ -54,41 +54,58 @@ public class MercadoPagoServiceImpl implements PaymentsService {
     }
 
     @Override
-    public String createPreference(UUID planId) throws MPException, MPApiException {
-        Plan plan = this.planService.getPlanById(planId);
+    public String createPreference(UUID planId) {
+        try {
+            Plan plan = this.planService.getPlanById(planId);
 
-        // 1️⃣ Crear la orden en la base de datos primero
-        Order order = this.orderService.createOrder(planId, "S"); // todavía no tenemos preferenceId
+            // 1️⃣ Crear la orden en la base de datos primero
+            Order order = this.orderService.createOrder(planId, "S");
 
-        // 2️⃣ Crear el ítem de la preferencia
-        PreferenceItemRequest item = PreferenceItemRequest.builder()
-                .title(plan.getName())
-                .description(plan.getDescription())
-                .quantity(1)
-                .unitPrice(BigDecimal.valueOf(plan.getPrice()))
-                .currencyId("ARS")
-                .build();
+            // 2️⃣ Crear el ítem de la preferencia
+            PreferenceItemRequest item = PreferenceItemRequest.builder()
+                    .title(plan.getName())
+                    .description(plan.getDescription())
+                    .quantity(1)
+                    .unitPrice(BigDecimal.valueOf(plan.getPrice()))
+                    .currencyId("ARS")
+                    .build();
 
-        // 3️⃣ Usar external_reference = orderId
-        PreferenceRequest request = PreferenceRequest.builder()
-                .items(Collections.singletonList(item))
-                .externalReference(order.getId().toString()) // 🔑 clave para buscar la orden en el webhook
-                .backUrls(
-                        PreferenceBackUrlsRequest.builder()
-                                .success("https://v0-image-fusion-app-git-dev-romanmeclazckes-projects.vercel.app/payment/success")
-                                .failure("https://tuapp.com/pago-fallido")
-                                .pending("https://tuapp.com/pago-pendiente")
-                                .build())
-                .autoReturn("approved")
-                .build();
+            // 3️⃣ Usar external_reference = orderId
+            PreferenceRequest request = PreferenceRequest.builder()
+                    .items(Collections.singletonList(item))
+                    .externalReference(order.getId().toString())
+                    .backUrls(
+                            PreferenceBackUrlsRequest.builder()
+                                    .success("https://v0-image-fusion-app-git-dev-romanmeclazckes-projects.vercel.app/payment/success")
+                                    .failure("https://tuapp.com/pago-fallido")
+                                    .pending("https://tuapp.com/pago-pendiente")
+                                    .build())
+                    .autoReturn("approved")
+                    .build();
 
-        PreferenceClient client = new PreferenceClient();
-        Preference preference = client.create(request);
+            PreferenceClient client = new PreferenceClient();
+            Preference preference = client.create(request);
 
-        // 4️⃣ Actualizar la orden con el preferenceId
-        this.orderService.updatePreferenceId(order.getId(), preference.getId());
+            // 4️⃣ Actualizar la orden con el preferenceId
+            this.orderService.updatePreferenceId(order.getId(), preference.getId());
 
-        return preference.getInitPoint();
+            return preference.getInitPoint();
+
+        } catch (MPApiException e) {
+            // 👀 Loguear el detalle del error que devuelve MercadoPago
+            if (e.getApiResponse() != null) {
+                log.error("Error al procesar el pago: status={}, content={}",
+                        e.getApiResponse().getStatusCode(),
+                        e.getApiResponse().getContent());
+            } else {
+                log.error("Error al procesar el pago: {}", e.getMessage(), e);
+            }
+            throw new RuntimeException("Error al crear preferencia en MercadoPago", e);
+
+        } catch (MPException e) {
+            log.error("Error general de MercadoPago: {}", e.getMessage(), e);
+            throw new RuntimeException("Error general en MercadoPago", e);
+        }
     }
 
     @Override
