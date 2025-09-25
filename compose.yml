@@ -15,7 +15,14 @@ services:
       - PROJECT_ID=${PROJECT_ID}
       - MERCADO_PAGO_ACCESS_TOKEN=${MERCADO_PAGO_ACCESS_TOKEN}
       - MERCADO_PAGO_PUBLIC_KEY=${MERCADO_PAGO_PUBLIC_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - GOOGLE_OAUTH2_CLIENT_ID=${GOOGLE_OAUTH2_CLIENT_ID}
+      - GOOGLE_OAUTH2_CLIENT_SECRET=${GOOGLE_OAUTH2_CLIENT_SECRET}
+      - GOOGLE_OAUTH2_SCOPE=${GOOGLE_OAUTH2_SCOPE}
     volumes:
+      # Montar el .m2 local para no volver a bajar dependencias
+      - ~/.m2:/root/.m2
       - ./fitvision-key.json:/app/fitvision-key.json
     depends_on:
       - db

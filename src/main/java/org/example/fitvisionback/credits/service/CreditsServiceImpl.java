@@ -39,9 +39,8 @@ public class CreditsServiceImpl implements CreditsService{
     @Override
     public void addCreditsToUser(User user, Plan plan) {
         Credits creditsOffUser = this.creditsRepository.findByUser(user);
-        creditsOffUser.setCredits(plan.getCredits());
+        creditsOffUser.setCredits(creditsOffUser.getCredits() + plan.getCredits());
         this.creditsRepository.save(creditsOffUser);
-
     }
 
     @Override
