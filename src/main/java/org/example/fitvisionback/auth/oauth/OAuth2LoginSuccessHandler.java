@@ -1,6 +1,8 @@
 package org.example.fitvisionback.auth.oauth;
 
 import org.example.fitvisionback.auth.service.JwtService;
+import org.example.fitvisionback.credits.model.Credits;
+import org.example.fitvisionback.credits.service.CreditsService;
 import org.example.fitvisionback.user.entity.AuthenticationProvider;
 import org.example.fitvisionback.user.entity.Role;
 import org.example.fitvisionback.user.entity.User;
@@ -25,6 +27,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final CreditsService creditsService;
 
     @Value("${application.frontend.url}")
     private String frontendUrl;
@@ -39,12 +42,21 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
         if (userOptional.isEmpty()) {
-            user = new User();
-            user.setEmail(email);
-            user.setName(name);
-            user.setRole(Role.USER);
-            user.setProvider(AuthenticationProvider.GOOGLE);
+            user = User.builder()
+                    .email(email)
+                    .name(name)
+                    .role(Role.USER)
+                    .provider(AuthenticationProvider.GOOGLE)
+                    .build();
+
             userRepository.save(user);
+
+            Credits credits = Credits.builder()
+                    .user(user)
+                    .credits(0)
+                    .build();
+
+            this.creditsService.save(credits);
         } else {
             user = userOptional.get();
         }
