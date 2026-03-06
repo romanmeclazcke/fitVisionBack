@@ -26,7 +26,7 @@ public class IaImageGeneratorServiceImpl implements IaImageGeneratorService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    private static final String MODEL_NAME = "gemini-2.5-flash-image-preview";
+    private static final String MODEL_NAME = "gemini-2.0-flash-exp";
     private static final String BASE_URL   = "https://generativelanguage.googleapis.com/v1beta";
 
     // Constructor correcto (mismo nombre que la clase). No hace falta @Autowired en Boot 3.x.
