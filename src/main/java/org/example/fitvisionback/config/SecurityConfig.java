@@ -5,6 +5,8 @@ import org.example.fitvisionback.auth.oauth.OAuth2LoginSuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +30,15 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults()) // 👈 activar CORS
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                            response.getWriter().write("{\"error\":\"unauthorized\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendError(HttpServletResponse.SC_FORBIDDEN))
+                )
                 .authorizeHttpRequests(authRequest ->
                         authRequest
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -35,7 +46,8 @@ public class SecurityConfig {
                                         "/auth/**",
                                         "/oauth2/**",
                                         "/user/register",
-                                        "/mercado-pago/webhook"
+                                        "/mercado-pago/webhook",
+                                        "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
