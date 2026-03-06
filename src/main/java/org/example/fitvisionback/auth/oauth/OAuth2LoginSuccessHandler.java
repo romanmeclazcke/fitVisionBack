@@ -36,11 +36,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes = oauthUser.getAttributes();
+
         String email = attributes.getOrDefault("email", "").toString();
         String name = attributes.getOrDefault("name", "").toString();
 
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user;
+
         if (userOptional.isEmpty()) {
             user = User.builder()
                     .email(email)
@@ -49,24 +51,26 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     .provider(AuthenticationProvider.GOOGLE)
                     .build();
 
-            userRepository.save(user);
+            user = userRepository.save(user);
 
             Credits credits = Credits.builder()
                     .user(user)
                     .credits(0)
                     .build();
 
-            this.creditsService.save(credits);
+            user.setCredits(credits);
+
+            user = userRepository.save(user);
         } else {
             user = userOptional.get();
         }
 
         String jwtToken = jwtService.generateToken(user);
-        
-        String redirectUrl = UriComponentsBuilder.fromUriString(frontendUrl+"/auth/callback")
+
+        String redirectUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
                 .queryParam("token", jwtToken)
-                .build().toUriString();
-        //
+                .build()
+                .toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
