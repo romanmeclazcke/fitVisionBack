@@ -29,7 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // 👈 activar CORS
+                .cors(Customizer.withDefaults())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -47,6 +47,7 @@ public class SecurityConfig {
                                         "/oauth2/**",
                                         "/user/register",
                                         "/mercado-pago/webhook",
+                                        "/plan",
                                         "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()
