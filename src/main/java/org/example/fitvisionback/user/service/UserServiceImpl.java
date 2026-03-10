@@ -10,6 +10,7 @@ import org.example.fitvisionback.user.dto.UserResponseDto;
 import org.example.fitvisionback.user.entity.User;
 import org.example.fitvisionback.user.mapper.UserMapper;
 import org.example.fitvisionback.user.repository.UserRepository;
+import org.example.fitvisionback.utils.GetUserConected;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,14 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private UserMapper userMapper;
     private CreditsService credtisService;
+    private GetUserConected getUserConected;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CreditsService credtisService) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, CreditsService credtisService, GetUserConected getUserConected) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.credtisService = credtisService;
+        this.getUserConected = getUserConected;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -63,5 +66,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User with email " + userEmail + " not found"));
 
         return this.userMapper.toDto(user);
+    }
+
+    @Override
+    public UserResponseDto getUserConnected() {
+        return this.userMapper.toDto(this.getUserConected.getUserConected());
     }
 }

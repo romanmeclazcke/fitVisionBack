@@ -32,4 +32,9 @@ public class UserController {
             @PathVariable String userEmail) {
        return ResponseEntity.ok(this.userService.getUserByEmail(userEmail));
     }
+
+    @GetMapping("/user-connected")
+    public ResponseEntity<UserResponseDto> getUserConnected() {
+        return ResponseEntity.ok(this.userService.getUserConnected());
+    }
 }

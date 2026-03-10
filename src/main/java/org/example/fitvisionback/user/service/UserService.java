@@ -7,4 +7,6 @@ public interface UserService {
     void registerUser(CreateUserDto createUserDto);
 
     UserResponseDto getUserByEmail(String userEmail);
+
+    UserResponseDto getUserConnected();
 }
