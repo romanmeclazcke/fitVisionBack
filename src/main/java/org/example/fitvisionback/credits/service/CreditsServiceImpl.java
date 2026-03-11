@@ -3,6 +3,7 @@ package org.example.fitvisionback.credits.service;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitvisionback.credits.model.Credits;
 import org.example.fitvisionback.credits.repository.CreditsRepository;
+import org.example.fitvisionback.creditsConsumed.service.CreditsConsumedService;
 import org.example.fitvisionback.plan.entity.Plan;
 import org.example.fitvisionback.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,12 @@ public class CreditsServiceImpl implements CreditsService{
 
 
     private CreditsRepository creditsRepository;
+    private CreditsConsumedService creditsConsumedService;
 
     @Autowired
-    public CreditsServiceImpl(CreditsRepository creditsRepository) {
+    public CreditsServiceImpl(CreditsRepository creditsRepository, CreditsConsumedService creditsConsumedService) {
         this.creditsRepository = creditsRepository;
+        this.creditsConsumedService = creditsConsumedService;
     }
 
     @Override
@@ -34,6 +37,7 @@ public class CreditsServiceImpl implements CreditsService{
         Credits credits = this.creditsRepository.findByUser(userConected);
         credits.setCredits(credits.getCredits()-1);
         this.creditsRepository.save(credits);
+        this.creditsConsumedService.saveCreditConsumed(userConected);
     }
 
     @Override
