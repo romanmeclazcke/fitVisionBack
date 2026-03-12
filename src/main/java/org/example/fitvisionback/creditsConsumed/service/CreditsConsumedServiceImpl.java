@@ -36,6 +36,7 @@ public class CreditsConsumedServiceImpl implements CreditsConsumedService{
         creditsConsumedRepository.save(creditsConsumed);
     }
 
+    //Document
     @Override
     public List<CreditsConsumedChartPointDto> getCreditsConsumedChart(User user,
                                                                       CreditsConsumedChartType chartType,
