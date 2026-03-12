@@ -4,7 +4,6 @@ import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -39,5 +38,10 @@ public class ControllerAdvice  {
     @ExceptionHandler(PaymentWasProccesedException.class)
     public ResponseEntity<String> handlePaymentWasProccesedException(PaymentWasProccesedException ex) {
         return ResponseEntity.status(409).body(PaymentWasProccesedException.class.getSimpleName() + " : " +ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(IllegalArgumentException.class.getSimpleName() + " : " + ex.getMessage());
     }
 }

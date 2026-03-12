@@ -44,7 +44,7 @@ public class SecurityConfig {
                         authRequest
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers(
-                                        "/auth/**",
+                                        "/auth/login",
                                         "/oauth2/**",
                                         "/user/register",
                                         "/mercado-pago/webhook",
